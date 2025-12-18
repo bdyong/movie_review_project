@@ -6,7 +6,7 @@ const { authenticateToken } = require('../middleware/auth');
 // 리뷰 작성 (인증 필요)
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { movie_id, rating, comment } = req.body;
+      const { movie_id, rating, comment, spoiler, tags } = req.body;
     const user_id = req.user_id; // JWT 미들웨어에서 추출
 
     // 입력 검증
@@ -25,7 +25,7 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 
     // 리뷰 생성
-    const review = await Review.create(movie_id, user_id, rating, comment || '');
+      const review = await Review.create(movie_id, user_id, rating, comment, spoiler, tags); 
 
     res.status(201).json({
       success: true,
