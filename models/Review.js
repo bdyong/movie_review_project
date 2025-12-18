@@ -1,12 +1,24 @@
 const { pool } = require('../config/database');
 
+(async () => {
+    try {
+        await pool.execute(`
+      ALTER TABLE reviews 
+      ADD COLUMN IF NOT EXISTS tags VARCHAR(255) NULL
+    `);
+        console.log("📌 tags 컬럼 자동 확인/생성 완료");
+    } catch (err) {
+        console.error("⚠ tags 컬럼 생성 체크 오류:", err);
+    }
+})();
+
 class Review {
   // 리뷰 작성
-  static async create(movie_id, user_id, rating, comment) {
+  static async create(movie_id, user_id, rating, comment, spoiler, tags) {
     try {
       const [result] = await pool.execute(
-        'INSERT INTO reviews (movie_id, user_id, rating, comment) VALUES (?, ?, ?, ?)',
-        [movie_id, user_id, rating, comment]
+        'INSERT INTO reviews (movie_id, user_id, rating, comment, spoiler, tags) VALUES (?, ?, ?, ?, ?, ?)',
+          [movie_id, user_id, rating, comment, spoiler, tags]
       );
 
       return {
@@ -14,7 +26,9 @@ class Review {
         movie_id,
         user_id,
         rating,
-        comment
+        comment,
+        spoiler,
+        tags
       };
     } catch (error) {
       throw error;
@@ -31,7 +45,9 @@ class Review {
           r.user_id,
           r.rating,
           r.comment,
+          r.spoiler,
           r.created_at,
+          r.tags,
           u.username,
           u.email
         FROM reviews r
